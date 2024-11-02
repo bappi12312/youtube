@@ -91,7 +91,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     })
 })
 
-const publishVideo = asyncHandler(async () => {
+const publishVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
 
   if (!title || !description) {
@@ -126,5 +126,19 @@ const publishVideo = asyncHandler(async () => {
   if (!video)
     throw new ApiError(400, "video not uploaded")
   return res.status(200).json(new ApiResponse(200, video, "Video published successfully"))
+})
+
+const getSingleVideoById = asyncHandler(async (req, res) => {
+  const { videoId } = req.params;
+
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "video id required")
+  }
+  const video = await Video.findById(videoId)
+
+  if (!video)
+    throw new ApiError(404, "video not found")
+
+  return res.status(200).json(new ApiResponse(200, video, "video found successfully"))
 })
 
