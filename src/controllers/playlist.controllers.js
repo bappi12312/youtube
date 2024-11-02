@@ -94,13 +94,39 @@ const getUserPlaylist = asyncHandler(async (req, res) => {
   ));
 })
 
-const getPlaylistById = asyncHandler(async(req,res) => {
+const getPlaylistById = asyncHandler(async (req, res) => {
   const { playlistId } = req.params
-    if (!isValidObjectId(playlistId))
-        throw new ApiError(400, "invalid playlist id")
-    const playlist = await Playlist.findById(playlistId)
-    if (!playlist)
-        throw new ApiError(404, "Playlist not found")
-    return res.status(200)
-        .json(new ApiResponse(200, playlist, "playlist id found successfully"))
+  if (!isValidObjectId(playlistId))
+    throw new ApiError(400, "invalid playlist id")
+  const playlist = await Playlist.findById(playlistId)
+  if (!playlist)
+    throw new ApiError(404, "Playlist not found")
+  return res.status(200)
+    .json(new ApiResponse(200, playlist, "playlist id found successfully"))
+})
+
+const addVideoToPlaylist = asyncHandler(async (req, res) => {
+  const { playlistId, VideoId } = req.params;
+  if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
+    throw new ApiError(400, "playlist id or video id is not valid")
+  }
+
+  const playlist = await Playlist.findById(playlistId)
+  if (!playlist)
+    throw new ApiError(404, "playlist not found")
+
+  const video = await Video.findById(videoId)
+
+  if (!video || !video.isPublished)
+    throw new ApiError(404, "video not found")
+
+  playlist.videos.push(videoId)
+
+  const updatedPlaylist = await playlist.save()
+
+  if (!updatedPlaylist)
+    throw new ApiError(500, "playlist not updated")
+
+  return res.status(200)
+    .json(new ApiResponse(200, updatedPlaylist, "video added to playlist successfully"))
 })
