@@ -84,3 +84,41 @@ const addComment = asyncHandler(async (req, res) => {
   }
   return res.status(200).json(new ApiResponse(200, comments, "comment created successfully"))
 })
+
+const updateComment = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  const { content } = req.body;
+
+  if (!isValidObjectId(commentId))
+    throw new ApiError(400, "comment id invalid")
+
+  if (!content)
+    throw new ApiError(400, "content is required")
+
+
+  const comment = await Comment.findById(commentId)
+
+  if (!(comment.owner.toString() === req.user?._id.toString())) {
+    throw new ApiError(400, "only login user can update")
+  }
+
+  const updatedComment = await Comment.findByIdAndUpdate(
+    commentId,
+    {
+      $set: {
+        content: content,
+        owner: req.user?._id
+      }
+    },
+    {
+      new: true
+    }
+  )
+
+  if (!updatedComment)
+    throw new ApiError(400, "Could not update comment")
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedComment, "comment updated successfully"))
+})
