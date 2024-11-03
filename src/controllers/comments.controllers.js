@@ -122,3 +122,23 @@ const updateComment = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, updatedComment, "comment updated successfully"))
 })
+
+const deleteComment = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  if (!isValidObjectId(commentId))
+    throw new ApiError(400, "Invalid comment id")
+
+  const commentFound = await Comment.findById(commentId)
+
+  if (!(commentFound.owner.toString() === req.user?._id.toString()))
+        throw new ApiError(400, "only login user can delete comment")
+
+    const deletion = await Comment.findByIdAndDelete(commentId)
+
+    if (!deletion)
+        throw new ApiError(400, "could not delete comment")
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, deletion, "comment deleted successfully"))
+})
