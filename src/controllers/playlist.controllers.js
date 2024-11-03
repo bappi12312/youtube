@@ -4,7 +4,6 @@ import { Video } from "../models/video.model";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
-import { uploadOnCloudinary } from "../utils/cloudinary";
 import mongoose, { isValidObjectId } from "mongoose"
 
 const createPlaylist = asyncHandler(async (req, res) => {
