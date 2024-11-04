@@ -1,12 +1,11 @@
-import { parse } from "dotenv";
-import { Playlist } from "../models/playlist.model";
-import { User } from "../models/user.model";
 import { Video } from "../models/video.model";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import mongoose, { isValidObjectId } from "mongoose"
 import { Comment } from "../models/comments.model";
+
+
 const getVideoComments = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   const { page = 1, limit = 10 } = req.query;
@@ -142,3 +141,10 @@ const deleteComment = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponse(200, deletion, "comment deleted successfully"))
 })
+
+export {
+  getVideoComments,
+  addComment,
+  updateComment,
+  deleteComment
+}
