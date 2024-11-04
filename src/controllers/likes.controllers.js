@@ -78,7 +78,42 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
   }
 
   return res
-  .status(200)
-  .json(new ApiResponse(200, dislike, "comment disliked successfully"))
+    .status(200)
+    .json(new ApiResponse(200, dislike, "comment disliked successfully"))
 
+})
+
+const toggleTweetLike = asyncHandler(async (req, res) => {
+  const { tweetId } = req.params;
+
+  if (!isValidObjectId(tweetId))
+    throw new ApiError(400, "invalid tweet id")
+
+  const tweet = await Tweet.findById(tweetId)
+  if (!tweet || (tweet.owner?.toString() !== req.user?._id.toString()))
+    throw new ApiError(404, "tweet not found")
+
+  const likeCritaria = {
+    tweet: tweetId,
+    likedBy: req.user?._id
+  }
+  const alreadyLiked = await Likes.findOne(likeCritaria)
+
+  if (!alreadyLiked) {
+    const newlike = await Likes.create(likeCriteria)
+    if (!newlike)
+      throw new ApiError(400, "unable to like")
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, newlike, "tweet liked successfully"))
+  }
+
+  const dislike = await Likes.deleteOne(likeCritaria)
+
+
+  if (!dislike)
+    throw new ApiError(400, "unable to dislike")
+
+  return res.status(200).json(new ApiResponse(200, dislike, "tweet disliked successfully"))
 })
