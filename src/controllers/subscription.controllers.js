@@ -79,3 +79,45 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     new ApiResponse(200, subscriberList, "Successfully got the subscribers")
   )
 })
+
+const getSubscribedChannels = asyncHandler(async (req, res) => {
+  const { subscriberId } = req.params;
+
+  if (!subscriberId) {
+    throw new ApiError(400, "Not found subscriber id");
+  }
+
+  const user = await User.findById(subscriberId)
+  if (!user) {
+    throw new ApiError(404, "Channel does not exits");
+  }
+
+  const subscribedList = await Subscription.aggregate([
+    {
+      $match: {
+        subscriber: new mongoose.Types.ObjectId(subscriberId)
+      }
+    }, {
+      $group: {
+        _id: null,
+        totalCount: {
+          $sum: 1
+        }
+      }
+    }
+  ])
+
+  if (!subscribedList || subscribedList.length === 0) {
+    throw new ApiError(404, "Subscriberes not founded");
+  }
+
+  res.status(200).json(
+    new ApiResponse(200, subscribedList, "Successfully got the subscribers")
+  )
+})
+
+export {
+  toggleSubscription,
+  getUserChannelSubscribers,
+  getSubscribedChannels
+}
