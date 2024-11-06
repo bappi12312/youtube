@@ -118,7 +118,6 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, dislike, "tweet disliked successfully"))
 })
 
-
 const getLikedVideos = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
 
@@ -209,3 +208,11 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, likedVideos, "Successfully fetched liked videos"))
 })
+
+
+export {
+  toggleCommentLike,
+  toggleTweetLike,
+  toggleVideoLike,
+  getLikedVideos
+}
